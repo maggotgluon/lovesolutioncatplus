@@ -48,29 +48,15 @@ use Illuminate\Support\Facades\Hash;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/dev', function(){
-    $c = client::first();
-    $data=[];
-    if($c->remark){
-        $cerrent = $c->remark;
-        $last = last($cerrent)['no'];
-        // dd($cerrent,$last);
-        array_push($cerrent, [
-            'no'=>$last+1,
-            'date'=>now(),
-        ]);
-        $data=$cerrent;
-        // dd($cerrent);
+Route::get('/dev/{id?}', function($id=null){
+    if($id){
+        $c=client::where('phone',$id)->firstOrFail();
     }else{
-        array_push($data, [
-            'no'=>1,
-            'date'=>now(),
-        ]);
+        $c=client::first();
     }
-    $c->remark=$data;
 
-    $c->save();
-    dd($c,now());
+    // dd($c);
+    return new mailRemarketing($c);
 });
 // Route::view('/', 'welcome')->name('home');
 Route::middleware('auth')->name('ma.')->prefix('ma')->group(function (){
@@ -101,13 +87,33 @@ Route::name('client.')->prefix('client')->group(function (){
     // }
 });
 
+Route::name('email.')->prefix('email')->group(function (){
+
+    Route::get('rmkt/{phone?}',function($phone=null){
+        if($phone){
+            $c=client::where('phone',$phone)->firstOrFail();
+        }else{
+            $c=client::first();
+        }
+        // dd($c);
+        return new mailRemarketing($c);
+    })->name('remarketing');
+});
 
 
 Route::name('test.')->prefix('test')->group(function (){
     
     Route::view('email/','email.index');
     Route::view('email/confirmation/{phone?}','email.confirmation',['client'=>client::find(1)])->name('email.confirmation');
-    Route::view('email/rmkt/{phone?}','email.remarketing',['client'=>client::find(1)])->name('email.remarketing');
+    Route::get('email/rmkt/{phone?}',function($phone=null){
+        if($phone){
+            $c=client::where('phone',$phone)->firstOrFail();
+        }else{
+            $c=client::first();
+        }
+        // dd($c);
+        return new mailRemarketing($c);
+    })->name('email.remarketing');
     // Route::get(function () {
     Route::fallback(function () {
         $c=client::whereDate('updated_at',now()->addDay(-5))->get();

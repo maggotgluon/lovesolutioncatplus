@@ -180,7 +180,7 @@ class Register extends Component
         $SMSclient = new smsClient;
 
         try {
-            $SMSresponse = $SMSclient->request('POST', env('SMS_URL').'/v2/otp/request', [
+            $SMSresponse = $SMSclient->request('POST', env('OTP_URL').'/v2/otp/request', [
                 'form_params' => [
                     'key' => getenv('BULKSMS_KEY'),
                     'secret' => getenv('BULKSMS_SECRET'),

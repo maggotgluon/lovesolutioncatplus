@@ -24,16 +24,16 @@ class Profile extends Component
         }else{
             if($this->client->option_2 && $this->client->option_3){
                 $dateSend = $this->client->updated_at->addDay(25);
-                dd('send remider in 25 day at '.$dateSend->toDateString());
+                // dd('send remider in 25 day at '.$dateSend->toDateString());
                 // status can select
             }else{
                 $dateSend = $this->client->updated_at->addDay(7);
                 $lastSelect=$this->client->option_1??$this->client->option_2??$this->client->option_3;
                 
-                dd('send remider in 7 day last select '.$dateSend.$lastSelect);
+                // dd('send remider in 7 day last select '.$dateSend.$lastSelect);
             }
         }
-        dd($status);
+        // dd($status);
 
     }
     public function render()

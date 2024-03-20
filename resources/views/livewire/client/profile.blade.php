@@ -1,10 +1,10 @@
 <div>
     
-    {{$client->name}}<br>
-    first time regis {{$client->created_at}}<br>
-    number of rmkt {{$client->rmkt->count()}} times<br>
+    Name : {{$client->name}}<br>
+    first time regis : {{$client->created_at}}<br>
+    {{-- number of rmkt " {{$client->rmkt->count()}} times<br>
     rmkt opt 1 month : {{$client->rmkt->whereNotNull('option_2')->count()}} times<br>
-    rmkt opt 3 month : {{$client->rmkt->whereNotNull('option_3')->count()}} times<br>
+    rmkt opt 3 month : {{$client->rmkt->whereNotNull('option_3')->count()}} times<br> --}}
     <div class="max-h-64 overflow-y-scroll">
     @foreach ($client->rmkt as $c)
     <div class="p-2 odd:bg-gray-200 rounded my-2">

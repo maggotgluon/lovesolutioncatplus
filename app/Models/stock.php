@@ -39,27 +39,27 @@ class stock extends Model
 
         $pending = $client->where('active_status','<>','activated')->count();
 		
-        $rmktClient=$this->rmktClients;
+        // $rmktClient=$this->rmktClients;
 
-        $rmktredeemed = $rmktClient->where('active_status','activated')->count();
-        $rmktactivate_opt_1 = $rmktClient->where('active_status','activated')->where('option_2')->count();
-        $rmktactivate_opt_3 = $rmktClient->where('active_status','activated')->where('option_3')->count();
-        $rmktactivate_opt = $rmktactivate_opt_1 + $rmktactivate_opt_3 ;
+        // $rmktredeemed = $rmktClient->where('active_status','activated')->count();
+        // $rmktactivate_opt_1 = $rmktClient->where('active_status','activated')->where('option_2')->count();
+        // $rmktactivate_opt_3 = $rmktClient->where('active_status','activated')->where('option_3')->count();
+        // $rmktactivate_opt = $rmktactivate_opt_1 + $rmktactivate_opt_3 ;
 
-        $rmktopt_1 = $rmktClient->where('option_2')->count();
-        $rmktopt_3 = $rmktClient->where('option_3')->count();
-		$rmktopt = $rmktopt_1+$rmktopt_3;
+        // $rmktopt_1 = $rmktClient->where('option_2')->count();
+        // $rmktopt_3 = $rmktClient->where('option_3')->count();
+		// $rmktopt = $rmktopt_1+$rmktopt_3;
 
-        $rmktpending = $rmktClient->where('active_status','<>','activated')->count();
+        // $rmktpending = $rmktClient->where('active_status','<>','activated')->count();
 
 
-        $redeemed+=$rmktredeemed;
-        $activate_opt+=$rmktactivate_opt;
-        $pending+=$rmktpending;
-        $opt+=$rmktopt;
+        // $redeemed+=$rmktredeemed;
+        // $activate_opt+=$rmktactivate_opt;
+        // $pending+=$rmktpending;
+        // $opt+=$rmktopt;
 
-        $remaining = $quota - $activate_opt;
-        $outQuota = ($quota - $opt - $pending <= 0)?($quota - $opt - $pending):0;
+        $remaining = $quota - $redeemed;
+        $outQuota = ($quota - $redeemed - $pending <= 0)?($quota - $redeemed - $pending):0;
 
         return [
             'client_all'=>$client->count(),

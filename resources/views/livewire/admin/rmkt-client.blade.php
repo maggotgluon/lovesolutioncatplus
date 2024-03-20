@@ -65,7 +65,7 @@
                     {{$client->updated_at->format('d/m/y')}}
                 </td>
                 <td class="align-top border whitespace-nowrap border-primary-blue p-2 block md:table-cell">
-                    {{$client->profile->name}}
+                    <x-button label="{{$client->profile->name}}" :href="route('admin.client.profile',$client->profile->client_code)" />
                     <x-button xs primary label="{{$client->profile->phone}}" href="tel:{{$client->profile->phone}}"/>
                     
                     @if (Auth::user()->isAdmin)
@@ -74,8 +74,10 @@
                     @isset($vet)
                     @else
                     <br>
+                    <x-button :href="route('admin.vet',$client->vet->id)">
                     {{$client->vet->id}} : 
                     {{$client->vet->vet_name}}
+                    </x-button>
                     @endisset
                 </td>
                 @if(env('VET_OPTION_1'))

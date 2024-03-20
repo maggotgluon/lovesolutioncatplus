@@ -180,7 +180,7 @@ class Register extends Component
         $SMSclient = new smsClient;
 
         try {
-            $SMSresponse = $SMSclient->request('POST', 'https://otp.thaibulksms.com/v2/otp/request', [
+            $SMSresponse = $SMSclient->request('POST', env('SMS_URL').'/v2/otp/request', [
                 'form_params' => [
                     'key' => getenv('BULKSMS_KEY'),
                     'secret' => getenv('BULKSMS_SECRET'),
@@ -254,7 +254,7 @@ class Register extends Component
             $body_sms = 'ยืนยันลงทะเบียนสำเร็จ ใช้สิทธิ์คลิก '.route('client.login');
             $SMSclient = new smsClient;
             
-            $response = $SMSclient->request('POST', '/sms', [
+            $response = $SMSclient->request('POST', env('SMS_URL').'/sms', [
                 'form_params' => [
                     'msisdn' => '+66' . str_replace('-', '', $this->regClient['phone']) ,
                     'message' => $body_sms,

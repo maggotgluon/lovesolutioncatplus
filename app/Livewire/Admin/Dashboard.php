@@ -5,14 +5,19 @@ namespace App\Livewire\Admin;
 use App\Mail\mailRemarketing;
 use App\Models\client as clientModel;
 use App\Models\vet;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Livewire\WithPagination;
+use WireUi\Traits\Actions;
 
 class Dashboard extends Component
 {
+
+    use Actions;
     public $search=[
         'text'=>null,
         'status'=>null,
@@ -76,5 +81,97 @@ class Dashboard extends Component
     }
     public function delete (clientModel $client){
         $client->delete();
+    }
+
+    public $token;
+
+    public function sms($client){
+        $client = clientModel::find($client['id']);
+        // dd($client);
+        $date = Carbon::create(env('RMKT_FINALDATE'));
+
+        if($date->isCurrentDay()){
+            $final = Carbon::create('1 May 2024');
+            if($client->updated_at<=$final){
+                $msg = '10 วันสุดท้าย ใกล้หมดเวลาอย่าลืมไปใช้สิทธิ์ CatPLUS คลิก '.route('email.remarketing',$client->phone) ;
+            }
+        }else{
+            if($client->updated_at<=today()->subDay(7) 
+            && $client->remark==null){
+
+                if($client->option_2 && $client->option_3){
+
+                }else{
+                    $lastSelect=$client->option_1??$client->option_2??$client->option_3;
+                    $thisSelect=$lastSelect==1?3:1;
+                    $msg = 'คุณยังมีสิทธิ '.$thisSelect.' เดือน อย่าลืมไปใช้สิทธิ์ โปรแกรม คลิก '.route('email.remarketing',$client->phone) ;
+                }
+            }else{ //($client->updated_at<=today()->subDay(25)){
+                $msg = 'ครบ 1 เดือนแล้ว ถึงเวลาที่คุณต้องปกป้อง CatPLUS คลิก '.route('email.remarketing',$client->phone) ;
+            }
+        }
+        // dd($this->APIlogin(),
+        // $client->phone,
+        // $msg );
+        if(isset($msg)){
+            $this->sendSms(
+                $this->APIlogin(),
+                $client->phone,
+                $msg );
+        }
+    }
+
+    public function APIlogin(){
+        $response = \Illuminate\Support\Facades\Http::asForm()->post(env('TAXI_URL')."/v2/user/login", [
+            "api_key" => env('TAXI_APIKEY'),
+            "secret_key" => env('TAXI_APISRECRET')
+        ]);
+
+        if($response->successful()){
+            $body = $response->json();
+            $this->notification()->success(
+                $title = 'success',
+                $description = "LOGIN TO : ".$body['data']['session_id']
+            );
+            $this->token=$body['data']['session_id'];
+            return $body['data']['session_id'];
+        }else{
+            $this->notification()->error(
+                $title = 'Error !!!',
+                $description = $response
+            );
+            return $response->transferStats->getResponse();
+        }
+    }
+
+    public function sendSms($sesson,$to,$msg){
+        if($this->token==null){
+            $this->token=$this->APIlogin();
+        }
+        $token=$this->token;
+        $phone = '66' . str_replace('-', '', $to);
+        $queryString = http_build_query([
+            "from" => "catplus",
+            "to" => $phone,
+            "text" => $msg,
+            "generate_link"=>true
+        ]);
+        // dd($queryString,$msg);
+        $response = \Illuminate\Support\Facades\Http::withToken($token)->post(env('TAXI_URL')."/v2/sms?{$queryString}", []);
+
+        if($response->successful()){
+            $body = $response->json();
+            Log::info("Send SMS TO : ".$phone." massage".$msg.' body '.$body);
+            $this->notification()->success(
+                $title = 'success',
+                $description = "Send SMS TO : ".$phone." massage".$msg.' body '.$body
+            );
+        }else{
+            Log::error("Error SMS TO : ".$phone." massage".$msg.' response '.$response);
+            $this->notification()->error(
+                $title = 'Error !!!',
+                $description = "Error SMS TO : ".$phone." massage".$msg.' response '.$response
+            );
+        }
     }
 }

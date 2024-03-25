@@ -49,11 +49,24 @@ class SendRemarketingEmail extends Command
                 foreach ($clients as $client) {
                     if($client->email){
                         try {
-                            Mail::to($client->email)->send(new mailRemarketing($client));
-                            $this->updateClient($client,'last 10 day remider');
-                            Log::info("last 10 day remider email sended to: ".$client->client_code.' : '.$client->name);
-                            $this->info("last 10 day remider email sended to: ".$client->client_code.' : '.$client->name);
-    
+                            if($client->email){
+                                Mail::to($client->email)->send(new mailRemarketing($client));
+                                $this->updateClient($client,'last 10 day remider');
+                                Log::info("last 10 day remider email sended to: ".$client->client_code.' : '.$client->name);
+                                $this->info("last 10 day remider email sended to: ".$client->client_code.' : '.$client->name);
+        
+                            }else{
+                                $lastSelect=$client->option_1??$client->option_2??$client->option_3;
+                                $thisSelect=$lastSelect==1?3:1;
+                                $this->sendSms(
+                                    $this->APIlogin(),
+                                    $client->phone,
+                                    '10 วันสุดท้าย ใกล้หมดเวลาอย่าลืมไปใช้สิทธิ์ CatPLUS คลิก '.route('email.remarketing',$client->phone) );
+        
+                                $this->updateClient($client,'last 10 day remider sms');
+                                Log::info("last 10 day remider sms sended to: ".$client->client_code.' : '.$client->name);
+                                $this->info("last 10 day remider sms sended to: ".$client->client_code.' : '.$client->name);
+                            }
                         } catch (\Throwable $exception) {
                             $this->error('client '.$client->client_code.' : '.$client->name.' | send Command last 10 day failed with error: '.$exception->getMessage());
                             Log::error($client->client_code.' : '.$client->name.$exception);
@@ -83,10 +96,23 @@ class SendRemarketingEmail extends Command
                         // dd('both');
                     }else{
                         // send mail
-                        Mail::to($client->email)->send(new mailRemarketing($client));
-                        $this->updateClient($client,'7 day remider mail');
-                        Log::info("7 day remider email sended to: ".$client->client_code.' : '.$client->name);
-                        $this->info("7 day remider email sended to: ".$client->client_code.' : '.$client->name);
+                        if($client->email){
+                            Mail::to($client->email)->send(new mailRemarketing($client));
+                            $this->updateClient($client,'7 day remider mail');
+                            Log::info("7 day remider email sended to: ".$client->client_code.' : '.$client->name);
+                            $this->info("7 day remider email sended to: ".$client->client_code.' : '.$client->name);
+                        }else{
+                            $lastSelect=$client->option_1??$client->option_2??$client->option_3;
+                            $thisSelect=$lastSelect==1?3:1;
+                            $this->sendSms(
+                                $this->APIlogin(),
+                                $client->phone,
+                                'คุณยังมีสิทธิ '.$thisSelect.' เดือน อย่าลืมไปใช้สิทธิ์ โปรแกรม คลิก '.route('email.remarketing',$client->phone) );
+
+                            $this->updateClient($client,'7 day remider sms');
+                            Log::info("7 day remider sms sended to: ".$client->client_code.' : '.$client->name);
+                            $this->info("7 day remider sms sended to: ".$client->client_code.' : '.$client->name);
+                        }
                         // if($client->email){
                         // }
                         // update user
@@ -111,11 +137,25 @@ class SendRemarketingEmail extends Command
             foreach ($clients as $client) {
                 try {
                 // $rmktClient=$client->rmkt->last();
-                    Mail::to($client->email)->send(new mailRemarketing($client));
 
-                    $this->updateClient($client,'25 day remider mail');
-                    Log::info("25 day remider email sended to: ".$client->client_code.' : '.$client->name);
-                    $this->info("25 day remider email sended to: ".$client->client_code.' : '.$client->name);
+                    if($client->email){
+                        Mail::to($client->email)->send(new mailRemarketing($client));
+
+                        $this->updateClient($client,'25 day remider mail');
+                        Log::info("25 day remider email sended to: ".$client->client_code.' : '.$client->name);
+                        $this->info("25 day remider email sended to: ".$client->client_code.' : '.$client->name);
+                    }else{
+                        $lastSelect=$client->option_1??$client->option_2??$client->option_3;
+                        $thisSelect=$lastSelect==1?3:1;
+                        $this->sendSms(
+                            $this->APIlogin(),
+                            $client->phone,
+                            'ครบ 1 เดือนแล้ว ถึงเวลาที่คุณต้องปกป้อง CatPLUS คลิก '.route('email.remarketing',$client->phone) );
+
+                        $this->updateClient($client,'25 day remider sms');
+                        Log::info("25 day remider sms sended to: ".$client->client_code.' : '.$client->name);
+                        $this->info("25 day remider sms sended to: ".$client->client_code.' : '.$client->name);
+                    }
 
                 } catch (\Throwable $exception) {
                     $this->error('client '.$client->client_code.' : '.$client->name.' | send Command 25 day failed with error: '.$exception->getMessage());
@@ -173,21 +213,23 @@ class SendRemarketingEmail extends Command
             $this->token=$this->APIlogin();
         }
         $token=$this->token;
+        $phone = '+66' . str_replace('-', '', $to);
         $queryString = http_build_query([
             "from" => "catplus",
-            "to" => $to,
-            "text" => $msg
+            "to" => $phone,
+            "text" => $msg,
+            "generate_link"=>true
         ]);
 
         $response = \Illuminate\Support\Facades\Http::withToken($token)->post(env('TAXI_URL')."/v2/sms?{$queryString}", []);
 
         if($response->successful()){
             $body = $response->json();
-            $this->info("SMS TO : ".$to." massage".$msg);
+            $this->info("SMS TO : ".$phone." massage".$msg);
             $this->info("Response Body : ".$body);
         }else{
-            Log::error("Error SMS TO : ".$to." massage".$msg);
-            $this->info("Response Body : ".$$response);
+            Log::error("Error SMS TO : ".$phone." massage".$msg);
+            $this->info("Response Body : ".$response);
         }
     }
 }

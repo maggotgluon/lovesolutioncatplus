@@ -165,7 +165,11 @@
                             {{$client->name}} 
                             @if (Auth::user()->isAdmin)
                             <x-button label="x" wire:click="delete({{$client}})" wire:confirm="คุณต้องการยืนยันการลบหรือไม่"/>
+                            @if($client->email)
                             <x-button label="Email" wire:click="sendEmail({{$client}})" wire:confirm="คุณต้องการยืนยันการส่ง email หรือไม่"/>
+                            @else
+                            <x-button label="SMS" wire:click="sms({{$client}})" wire:confirm="คุณต้องการยืนยันการส่ง SMS หรือไม่"/>
+                            @endif
                             <x-button label="View Email" :href="route('email.remarketing',$client->phone)" target="_blank" wire:confirm="คุณต้องการยืนยันการส่ง email หรือไม่"/>
                             @endif
                         </td>

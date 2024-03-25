@@ -28,7 +28,7 @@ class mailConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'LOVE Solution Cat Plus confirmation',
+            subject: env('APP_NAME').' confirmation',
         );
     }
 

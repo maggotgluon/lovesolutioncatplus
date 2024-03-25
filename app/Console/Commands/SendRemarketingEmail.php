@@ -16,6 +16,8 @@ class SendRemarketingEmail extends Command
     public const SUCCESS = 0;
     public const FAILURE = 1;
     public const INVALID = 2;
+
+    public $token,$session;
     /**
      * The name and signature of the console command.
      *
@@ -45,17 +47,18 @@ class SendRemarketingEmail extends Command
             if ($clients->count() > 0) {
                 Log::info("10 วันสุดท้าย remider email send list : ".$clients);
                 foreach ($clients as $client) {
-                    try {
-                        Mail::to($client->email)->send(new mailRemarketing($client));
-                        $this->updateClient($client,'last 10 day remider');
-                        Log::info("last 10 day remider email sended to: ".$client->client_code.' : '.$client->name);
-                        $this->info("last 10 day remider email sended to: ".$client->client_code.' : '.$client->name);
-
-                    } catch (\Throwable $exception) {
-                        $this->error('client '.$client->client_code.' : '.$client->name.' | send Command last 10 day failed with error: '.$exception->getMessage());
-                        Log::error($client->client_code.' : '.$client->name.$exception);
-            
-                        // return self::FAILURE;
+                    if($client->email){
+                        try {
+                            Mail::to($client->email)->send(new mailRemarketing($client));
+                            $this->updateClient($client,'last 10 day remider');
+                            Log::info("last 10 day remider email sended to: ".$client->client_code.' : '.$client->name);
+                            $this->info("last 10 day remider email sended to: ".$client->client_code.' : '.$client->name);
+    
+                        } catch (\Throwable $exception) {
+                            $this->error('client '.$client->client_code.' : '.$client->name.' | send Command last 10 day failed with error: '.$exception->getMessage());
+                            Log::error($client->client_code.' : '.$client->name.$exception);
+                            // return self::FAILURE;
+                        }
                     }
                 }
 
@@ -66,6 +69,8 @@ class SendRemarketingEmail extends Command
             // "10 วันสุดท้าย ใกล้หมดเวลาอย่าลืมไปใช้สิทธิ์ โปรแกรม LOVE Solution Cat Plus ที่คลินิกหรือโรงพยาบาลสัตว์ ที่ได้ลงทะเบียนไว้ "
         }
         //update last 30 day
+
+
         $clients = client::whereDate('updated_at','<=',today()->subDay(7))
             ->where('active_status','activated')
             ->whereNull('remark')->get();
@@ -147,5 +152,42 @@ class SendRemarketingEmail extends Command
         $client->remark=$data;
         $client->updated_at=now();
         $client->save();
+    }
+
+    public function APIlogin(){
+        $response = \Illuminate\Support\Facades\Http::asForm()->post(env('TAXI_URL')."/v2/user/login", [
+            "api_key" => env('TAXI_APIKEY'),
+            "secret_key" => env('TAXI_APISRECRET')
+        ]);
+
+        if($response->successful()){
+            $body = $response->json();
+            return $body['data']['session_id'];
+        }else{
+            return $response->transferStats->getResponse();
+        }
+    }
+
+    public function sendSms($sesson,$to,$msg){
+        if($this->token==null || $sesson==null){
+            $this->token=$this->APIlogin();
+        }
+        $token=$this->token;
+        $queryString = http_build_query([
+            "from" => "catplus",
+            "to" => $to,
+            "text" => $msg
+        ]);
+
+        $response = \Illuminate\Support\Facades\Http::withToken($token)->post(env('TAXI_URL')."/v2/sms?{$queryString}", []);
+
+        if($response->successful()){
+            $body = $response->json();
+            $this->info("SMS TO : ".$to." massage".$msg);
+            $this->info("Response Body : ".$body);
+        }else{
+            Log::error("Error SMS TO : ".$to." massage".$msg);
+            $this->info("Response Body : ".$$response);
+        }
     }
 }

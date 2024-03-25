@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class mailRemarketing extends Mailable
 {
@@ -103,7 +104,7 @@ class mailRemarketing extends Mailable
                 // dd('send remider in 7 day last select '.$lastSelect);
             }
         }
-
+        Log::info('send email'.$status);
         $this->status=$status;
     }
 
@@ -113,7 +114,7 @@ class mailRemarketing extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Mail Remarketing',
+            subject: env('APP_NAME').' : ถึงเวลาที่คุณต้องปกป้อง พาราไซท์ อย่าลืมปกป้อง',
         );
     }
 

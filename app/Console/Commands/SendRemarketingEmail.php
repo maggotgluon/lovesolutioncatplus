@@ -214,14 +214,13 @@ class SendRemarketingEmail extends Command
         }
         $token=$this->token;
         $phone = '+66' . str_replace('-', '', $to);
-        $queryString = http_build_query([
+        
+
+        $response = \Illuminate\Support\Facades\Http::withToken($token)->post(env('TAXI_URL')."/v2/sms", [
             "from" => "catplus",
             "to" => $phone,
             "text" => $msg,
-            "generate_link"=>true
         ]);
-
-        $response = \Illuminate\Support\Facades\Http::withToken($token)->post(env('TAXI_URL')."/v2/sms?{$queryString}", []);
 
         if($response->successful()){
             $body = $response->json();

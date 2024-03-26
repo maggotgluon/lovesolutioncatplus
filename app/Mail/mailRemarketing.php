@@ -104,7 +104,7 @@ class mailRemarketing extends Mailable
                 // dd('send remider in 7 day last select '.$lastSelect);
             }
         }
-        Log::info('send email'.$status);
+        Log::info('send email : '.implode(" ",$status) );
         $this->status=$status;
     }
 

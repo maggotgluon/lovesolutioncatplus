@@ -14,6 +14,13 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use WireUi\Traits\Actions;
 
+use Illuminate\Support\Facades\Http;
+
+
+use GuzzleHttp\Pool;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
+
 class Dashboard extends Component
 {
 
@@ -150,14 +157,13 @@ class Dashboard extends Component
         }
         $token=$this->token;
         $phone = '66' . str_replace('-', '', $to);
-        $queryString = http_build_query([
+
+        $response = Http::withToken($token)
+        ->post(env('TAXI_URL')."/v2/sms",[
             "from" => "catplus",
             "to" => $phone,
-            "text" => $msg,
-            "generate_link"=>true
+            "text" => $msg
         ]);
-        // dd($queryString,$msg);
-        $response = \Illuminate\Support\Facades\Http::withToken($token)->post(env('TAXI_URL')."/v2/sms?{$queryString}", []);
 
         if($response->successful()){
             $body = $response->json();
@@ -167,10 +173,10 @@ class Dashboard extends Component
                 $description = "Send SMS TO : ".$phone." massage".$msg.' body '.$body
             );
         }else{
-            Log::error("Error SMS TO : ".$phone." massage".$msg.' response '.$response);
+            Log::error("Error SMS TO : ".$phone.' response '.$response);
             $this->notification()->error(
                 $title = 'Error !!!',
-                $description = "Error SMS TO : ".$phone." massage".$msg.' response '.$response
+                $description = "Error SMS TO : ".$phone.' response '.$response
             );
         }
     }

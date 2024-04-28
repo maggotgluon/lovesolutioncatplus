@@ -81,10 +81,13 @@ Route::name('client.')->prefix('client')->group(function (){
         Route::get('/rmkt/select/{phone?}', ClientRmktSelect::class)->name('rmkt.select');
         
         Route::get('/profile/{client_code?}', ClientProfile::class)->name('profile');
-        Route::get('/badge/{client_code?}', function($phone=null){
-        // ClientBadge::class
-
-        return new mailBadge();
+        Route::get('/badge/{phone?}', function($phone=null){
+            if($phone){
+                $c=client::where('phone',$phone)->firstOrFail();
+            }else{
+                $c=client::first();
+            }
+        return new mailBadge($c);
         })->name('badge');
         Route::get('/download/', [downloads::class,'client'])->name('download');
     // }else{

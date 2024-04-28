@@ -17,6 +17,7 @@ use App\Livewire\Client\Dashboard as ClientDashboard;
 use App\Livewire\Client\Rmkt as ClientRmkt;
 use App\Livewire\Client\RmktSelect as ClientRmktSelect;
 use App\Livewire\Client\Profile as ClientProfile;
+use App\Livewire\Client\Badge as ClientBadge;
 
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Admin\Vets as AdminVets;
@@ -24,6 +25,7 @@ use App\Livewire\Admin\Vet as AdminVet;
 use App\Livewire\Admin\RmktClient as AdminRmkt;
 use App\Livewire\Management\Vet as ManagementVet;
 use App\Livewire\Management\VetEdit as ManagementVetEdit;
+use App\Mail\mailBadge;
 use App\Mail\mailConfirmation;
 use App\Mail\mailRemarketing;
 use App\Models\client;
@@ -79,6 +81,11 @@ Route::name('client.')->prefix('client')->group(function (){
         Route::get('/rmkt/select/{phone?}', ClientRmktSelect::class)->name('rmkt.select');
         
         Route::get('/profile/{client_code?}', ClientProfile::class)->name('profile');
+        Route::get('/badge/{client_code?}', function($phone=null){
+        // ClientBadge::class
+
+        return new mailBadge();
+        })->name('badge');
         Route::get('/download/', [downloads::class,'client'])->name('download');
     // }else{
         Route::fallback(function () {

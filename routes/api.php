@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Resources\addressResource;
-use App\Models\ThailandAddr;
+use App\Models\thailandAddr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,5 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('address',function(){
-    return new addressResource(ThailandAddr::all());
+    return new addressResource(thailandAddr::all());
 });

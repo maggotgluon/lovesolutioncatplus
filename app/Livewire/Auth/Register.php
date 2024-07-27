@@ -3,7 +3,7 @@
 namespace App\Livewire\Auth;
 
 use App\Models\stock;
-use App\Models\ThailandAddr;
+use App\Models\thailandAddr;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use App\Models\vet;
@@ -92,7 +92,7 @@ class Register extends Component
     public function updatedHaveVet($haveVet){
         if($haveVet){
             $this->addr=[
-                'province' => ThailandAddr::whereNotIn('Province',['กรุงเทพมหานคร'])->distinct('Province')->orderBy('Province')->pluck('Province'),
+                'province' => thailandAddr::whereNotIn('Province',['กรุงเทพมหานคร'])->distinct('Province')->orderBy('Province')->pluck('Province'),
                 'district'=>null,
                 'district'=>null,
             ];
@@ -101,10 +101,10 @@ class Register extends Component
         }
     }
     public function updatedProvince($province){
-        $this->addr['district']=ThailandAddr::where('Province',$province)->distinct('district')->pluck('district');
+        $this->addr['district']=thailandAddr::where('Province',$province)->distinct('district')->pluck('district');
     }
     public function updatedDistrict($district){
-        $this->addr['tambon']=ThailandAddr::where('Province',$this->province)->where('District',$district)->distinct('tambon')->pluck('tambon');
+        $this->addr['tambon']=thailandAddr::where('Province',$this->province)->where('District',$district)->distinct('tambon')->pluck('tambon');
         // dd($this->addr['tambon']);
     }
 }

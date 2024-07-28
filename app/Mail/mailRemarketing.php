@@ -10,6 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Mail\Mailables\Headers;
 
 class mailRemarketing extends Mailable
 {
@@ -116,6 +117,22 @@ class mailRemarketing extends Mailable
         return new Envelope(
             subject: env('APP_NAME').' : ถึงเวลาที่คุณต้องปกป้อง พาราไซท์ อย่าลืมปกป้อง',
         );
+    }
+    public function headers(): Headers
+    {
+        $c=$this->client;
+        $h=new Headers(
+            messageId: $c->email,
+            references: [],
+            text:[
+                'TRANSACTIONAL_GROUP_HEADER'=>'X-TM-Transc-Group',
+                'MESSAGE_ID_HEADER'=>'X-TM-Ref-Msg-Id',
+                'TRANSACTIONAL_REPORT_HEADER'=>'X-TM-Webhook',
+                'X-TM-From-Name'=>env('MAIL_FROM_NAME'),
+                'X-TM-From'=>env('MAIL_FROM_ADDRESS'),
+            ]
+        ) ;
+        return $h;
     }
 
     /**

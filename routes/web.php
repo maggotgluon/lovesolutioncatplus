@@ -28,6 +28,7 @@ use App\Livewire\Management\VetEdit as ManagementVetEdit;
 use App\Mail\mailBadge;
 use App\Mail\mailConfirmation;
 use App\Mail\mailRemarketing;
+use App\Mail\remind as mailRemind;
 use App\Models\client;
 use App\Models\rmktClient;
 use App\Models\User;
@@ -113,7 +114,12 @@ Route::name('email.')->prefix('email')->group(function (){
 
 Route::name('test.')->prefix('test')->group(function (){
     
-    Route::view('email/','email.index');
+    Route::get('email/',function(){
+        // dd('mail');
+        $c=client::first();
+
+        return new mailRemind($c);
+    });
     Route::view('email/confirmation/{phone?}','email.confirmation',['client'=>client::find(1)])->name('email.confirmation');
     Route::get('email/rmkt/{phone?}',function($phone=null){
         if($phone){

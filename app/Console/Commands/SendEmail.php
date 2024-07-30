@@ -26,9 +26,23 @@ class SendEmail extends Command
      */
     public function handle()
     {
-        // Code to send the email using Laravel's Mail facade or any other mail library
-        Mail::to('recipient@example.com')->send(new \App\Mail\ExampleEmail());
 
+        $clients = client::whereDate('updated_at','<=',today())
+            ->where('active_status','activated')->get();
+
+        foreach ($clients as $client) {
+            try {
+                Mail::to($client->email)->send(new \App\Mail\remind($client));
+                // $this->updateClient($client,'7 day remider mail');
+                Log::info("email sended to: ".$client->client_code.' : '.$client->name);
+                // $this->info("7 day remider email sended to: ".$client->client_code.' : '.$client->name);
+            } catch (\Throwable $exception) {
+                // $this->error('client '.$client->client_code.' : '.$client->name.' | send Command 7 day failed with error: '.$exception->getMessage());
+                Log::error($client->client_code.' : '.$client->name.$exception);
+
+                // return self::FAILURE;
+            }
+        }
         $this->info('Email sent successfully.');
     }
 }

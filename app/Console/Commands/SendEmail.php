@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use App\Models\client;
+use Illuminate\Support\Facades\Log;
 
 class SendEmail extends Command
 {

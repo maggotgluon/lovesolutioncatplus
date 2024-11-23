@@ -2,6 +2,6 @@
 
 @section('content')
 <div class="h-[50vh] text-center">
-Close for maintenance.
+Thank You.
 </div>
 @endsection

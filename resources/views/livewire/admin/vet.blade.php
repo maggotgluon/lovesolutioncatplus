@@ -170,7 +170,10 @@
                     <tr class="border border-primary-blue">
                         <td class="align-top md:border mx-2 border-primary-blue p-2 md:w-auto md:table-cell">{{$client->client_code}}</td>
                         <td class="align-top md:border mx-2 border-primary-blue p-2 block w-full md:w-auto md:table-cell">
-                            {{$client->updated_at->format('d/m/y')}}
+                            {{-- {{$client->updated_at->format('d/m/y')}} --}}
+                            @isset($client->active_date)
+							{{$client->active_date}}
+							@endisset
                         </td>
                         <td class="align-top border whitespace-nowrap border-primary-blue p-2 block md:table-cell">
                             {{$client->name}}

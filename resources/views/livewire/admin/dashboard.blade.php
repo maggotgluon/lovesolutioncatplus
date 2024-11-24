@@ -153,7 +153,11 @@
                             {{$client->client_code}}
                         </td>
                         <td class="align-top md:border border-primary-blue p-2 ml-2 table md:table-cell">
-                            <span class="md:hidden inline-block min-w-max mr-2">วันที่</span> {{$client->created_at->toDateString()}}
+                            <span class="md:hidden inline-block min-w-max mr-2">วันที่</span> 
+                            @isset($client->active_date)
+							{{$client->active_date}}
+							@endisset
+                            {{-- {{$client->created_at->toDateString()}} --}}
                         </td>
 
                         @isset($client->vet)
